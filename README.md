@@ -18,7 +18,7 @@ docker exec -it [container ID] bash
 ```
 The container ID can be found using `docker container ls`.
 
-### Collecting a point cloud base
+### Collecting the Point Cloud Base
 The grasping routine is reliant on blob detection to identify objects in the point cloud. This requires a base of point cloud points to perform background subtraction and filter out non-object points. To collect the base point cloud, clear the arena of any extraneous objects and use `src/store_base.py` to store the base point cloud. The script should move the arm to neutral position upon initialization.
 ```
 rosrun replab store_base.py

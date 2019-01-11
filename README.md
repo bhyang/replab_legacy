@@ -10,7 +10,7 @@ Since the package is only meant to be run inside of the provided Docker containe
 ### Initializing the Camera / MoveIt!
 Whenever operating the cell, the camera nodelet and MoveIt! stack need to be initialized before use. A convenience script `/root/widowx_arm/start.sh` is provided for this purpose.
 ```
-sh /root/widowx_arm/src/start.sh
+sh /root/widowx_arm/start.sh
 ```
 This script will run in the background during the operation of the cell. Once this script is running, we recommend entering the container in another terminal using `docker exec`.
 ```

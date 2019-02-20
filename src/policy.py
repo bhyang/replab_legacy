@@ -71,11 +71,6 @@ class PrincipalAxis(Policy):
         thetas = []
         confidences = []
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(pc[:,0], pc[:,1], pc[:,2])
-        plt.show()
-
         for i in range(len(set(labels)) - 1):
             x = pc[labels == i][:, :2]
             x = x - np.mean(x, axis=0)

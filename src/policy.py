@@ -7,6 +7,8 @@ from utils import *
 
 import traceback
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class Policy:
 
@@ -57,7 +59,7 @@ class DataCollection(Policy):
         else:
             center = np.append(center, np.random.uniform(-1.57, 1.57, (1)))
             return [(center, 1.)]
-
+            
 
 class PrincipalAxis(Policy):
     '''
@@ -68,6 +70,11 @@ class PrincipalAxis(Policy):
         blobs, labels = compute_blobs(pc)
         thetas = []
         confidences = []
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(pc[:,0], pc[:,1], pc[:,2])
+        plt.show()
 
         for i in range(len(set(labels)) - 1):
             x = pc[labels == i][:, :2]
@@ -95,8 +102,8 @@ class Pinto2016(Policy):
     '''
 
     def __init__(self, model_path=None, heightmaps=False):
-        self.net = PintoGuptaRGBNet(binned_output=True).cuda()
-        self.net.load_state_dict(torch.load(model_path))
+        # self.net = PintoGuptaRGBNet(binned_output=True).cuda()
+        self.net = torch.load(model_path).cuda()
         self.net.eval()
         self.resize = make_resize(227, 227)
 
@@ -128,7 +135,7 @@ class Pinto2016(Policy):
             if label == -1:
                 continue
             blob_points = pc[labels == label]
-            index = np.random.randint(0, len(set(labels)) - 1)
+            index = np.random.randint(0, len(blob_points))
             blobs.append(blob_points[index])
 
         all_grasps = []
@@ -137,16 +144,17 @@ class Pinto2016(Policy):
 
         for blob in blobs:
             blob = np.concatenate([blob, [0.]], axis=0)
-            blob[2] -= Z_OFFSET
-            if blob[2] > Z_MIN:
-                blob[2] = Z_MIN
+            # blob[2] -= Z_OFFSET
+            # if blob[2] > Z_MIN:
+            #     blob[2] = Z_MIN
+            blob[2] = Z_MIN
 
             candidates = []
             probabilities = []
             cropss = []
 
             for i in range(num_grasps // batch_size):
-                noise = np.random.uniform([-XY_NOISE, -XY_NOISE, -.01, -1.57], [XY_NOISE, XY_NOISE, 0.0, 1.57],
+                noise = np.random.uniform([-XY_NOISE, -XY_NOISE, -.02, -1.57], [XY_NOISE, XY_NOISE, 0.0, 1.57],
                                           (batch_size, 4))
                 grasps = noise + blob
                 candidates.append(grasps)
@@ -194,7 +202,7 @@ class FullImage(Policy):
         self.net.eval()
         self.resize = make_resize(227, 227)
 
-    def plan_grasp(self, rgbd, pc, num_grasps=512, batch_size=16):
+    def plan_grasp(self, rgbd, pc, num_grasps=2048, batch_size=64):
         rgb, depth = rgbd[:, :, :3].astype(np.uint8), rgbd[:, :, 3]
 
         depth = depth.astype(np.float)
@@ -204,32 +212,35 @@ class FullImage(Policy):
 
         rgb, depth = self.resize(rgb), self.resize(depth)
 
-        _, labels = compute_blobs(pc)
+        blobs, labels = compute_blobs(pc)
 
-        blobs = []
-        for label in set(labels):
-            if label == -1:
-                continue
-            blob_points = pc[labels == label]
-            index = np.random.randint(0, len(set(labels)) - 1)
-            blobs.append(blob_points[index])
+        # blobs = []
+        # for label in set(labels):
+        #     if label == -1:
+        #         continue
+        #     blob_points = pc[labels == label]
+        #     index = np.random.randint(0, len(set(labels)) - 1)
+        #     blobs.append(blob_points[index])
 
-        for blob in blobs:
-            blob[2] -= Z_OFFSET
-            if blob[2] > Z_MIN:
-                blob[2] = Z_MIN
+        # for blob in blobs:
+        #     blob[2] -= Z_OFFSET
+        #     if blob[2] > Z_MIN:
+        #         blob[2] = Z_MIN
+
+        # import pdb; pdb.set_trace()
 
         all_grasps = []
         all_probabilities = []
 
         for blob in blobs:
             blob = np.concatenate([blob, [0.]], axis=0)
+            blob[2] = Z_MIN
 
             candidates = []
             probabilities = []
 
             for i in range(num_grasps // batch_size):
-                noise = np.random.uniform([-.02, -.02, -.01, 0], [.04, .04, 0.0, 3.14],
+                noise = np.random.uniform([-.02, -.02, -.02, 0], [.02, .02, 0.0, 3.14 / 2],
                                           (batch_size, 4))
                 grasps = noise + blob
                 candidates.append(grasps)
@@ -249,6 +260,8 @@ class FullImage(Policy):
 
             all_grasps.append(candidates[best_index])
             all_probabilities.append(probabilities[best_index])
+
+        # import pdb; pdb.set_trace()
 
         all_grasps = np.array(all_grasps)
         all_grasps[:, :2] *= CONTROL_NOISE_COEFFICIENT

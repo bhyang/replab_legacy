@@ -8,6 +8,7 @@ from geometry_msgs.msg import (
     PointStamped,
     Point,
     Quaternion,
+    PoseStamped,
     Pose,
 )
 from moveit_commander import *
@@ -25,7 +26,7 @@ from config import *
 
 class WidowX:
 
-    def __init__(self):
+    def __init__(self, boundaries=True):
         self.scene = PlanningSceneInterface()
         self.commander = MoveGroupCommander("widowx_arm")
         self.gripper = MoveGroupCommander("widowx_gripper")
@@ -33,6 +34,14 @@ class WidowX:
         self.commander.set_end_effector_link('gripper_rail_link')
 
         rospy.sleep(2)
+
+        if boundaries:
+            p = PoseStamped()
+            p.header.frame_id = self.commander.get_planning_frame()
+            p.pose.position.x = 0
+            p.pose.position.y = 0
+            p.pose.position.z = .5
+            self.scene.add_box('floor', p, (1., 1., .001))
 
     def open_gripper(self, drop=False):
         plan = self.gripper.plan(GRIPPER_DROP if drop else GRIPPER_OPEN)

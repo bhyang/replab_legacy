@@ -47,7 +47,7 @@ def main():
     name = "CommanderHuman"
     rospy.init_node(name)
 
-    gui = ClickWindow("/camera/depth/image_raw", "clicked_point")
+    gui = ClickWindow("/camera/rgb/image_raw", "clicked_point")
     commander_human = CommanderHuman(240, 320, 1)
 
     # Register subscribers
@@ -57,7 +57,7 @@ def main():
     request_subscriber = rospy.Subscriber('/action_request', Float32, commander_human.get_on_request(action_publisher))
 
     while True:
-        cv2.imshow(gui.name, gui.img * 64)
+        cv2.imshow(gui.name, gui.img)
         key = cv2.waitKey(25)
         if key == 27:
             print ("Exit.")

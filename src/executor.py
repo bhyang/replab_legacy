@@ -10,7 +10,8 @@ import sensor_msgs.point_cloud2 as pc2
 from sensor_msgs.msg import (
     Image,
     PointCloud2,
-    CameraInfo
+    CameraInfo,
+    JointState
 )
 from std_msgs.msg import (
     UInt16,
@@ -52,6 +53,9 @@ class Executor:
             "/camera/depth/points", PointCloud2, self.update_pc)
         self.caminfo_subscriber = rospy.Subscriber(
             "/camera/depth/camera_info", CameraInfo, self.save_cinfo)
+        self.joint_subscriber = rospy.Subscriber(
+            "/joint_states", JointState, self.update_joints)
+
 
         self.datapath = datapath
         self.save = save
@@ -66,9 +70,11 @@ class Executor:
         self.evaluation_data = []
 
         # Store latest RGB-D
-        self.rgb = None
-        self.depth = None
-        self.pc = None
+        self.rgb = np.zeros((480,640,3))
+        self.depth = np.zeros((480,640,1))
+        self.pc = np.zeros((1,3))
+        
+        self.camera_info = CameraInfo()
 
         if scan:
             self.base_pc = np.zeros((1, 3)) + 5000.0
@@ -95,6 +101,9 @@ class Executor:
     def update_depth(self, data):
         cv_image = self.transform(self.bridge.imgmsg_to_cv2(data))
         self.depth = cv_image
+
+    def update_joints(self, data):
+        self.joints = data
 
     def update_pc(self, data):
         self.pc = pc2.read_points(data, skip_nans=True)
@@ -178,9 +187,6 @@ class Executor:
             assert inside_polygon(
                 (x, y, z), END_EFFECTOR_BOUNDS), 'Grasp not in bounds'
 
-            # assert self.widowx.orient_to_target(
-            #     x, y), 'Failed to orient to target'
-
             assert self.widowx.orient_to_pregrasp(x, y), 'Failed to orient to target'
 
             assert self.widowx.move_to_grasp(x, y, PRELIFT_HEIGHT, theta), \
@@ -199,6 +205,7 @@ class Executor:
             assert self.widowx.move_to_drop(), 'Failed to move to drop'
 
             rospy.sleep(2)
+            
             self.sample['after_img'] = self.get_rgbd()
             self.after = self.sample['after_img']
 
@@ -215,7 +222,7 @@ class Executor:
     def calculate_crop(self, grasp):
         grasp = np.concatenate([grasp, [1.]], axis=0)
         transformedPoint = np.dot(self.inv_cm, grasp)
-        transformedPoint += np.array([0., 0.04, 0., 0.])
+        # transformedPoint -= np.array([0., 0.04, 0., 0.])
         predicted = self.camera.project3dToPixel(transformedPoint)
         return int(predicted[0]), int(predicted[1])
 
@@ -233,6 +240,8 @@ class Executor:
         predicted = self.calculate_crop(graspPoint)
 
         self.sample['pixel_point'] = predicted
+
+        before = self.sample['before_img'][:,:,:3].astype(np.uint8)
 
         with h5py.File(self.datapath + str(i) + '.hdf5', 'w') as file:
             for key in self.sample:

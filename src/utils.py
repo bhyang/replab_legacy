@@ -65,7 +65,7 @@ def inside_polygon(point, arena, height_constraints=None):
         return inside
 
 
-def crop_image(img, center, radius=64):
+def crop_image(img, center, radius=48):
     y, x = center[0] + radius, center[1] + radius
     img = np.pad(img, ((radius, radius), (radius, radius), (0, 0)), 'constant')
     cropped = img[x - radius:x + radius, y - radius:y + radius, :]
@@ -101,6 +101,8 @@ def compute_blobs(pc):
     labels = db.labels_
 
     cluster_centers = []
+
+    # import pdb; pdb.set_trace()
     
     for cluster in set(db.labels_):
         if cluster != -1:
@@ -117,7 +119,11 @@ def compute_blobs(pc):
             
             if center[2] > Z_MIN:
                 center[2] = Z_MIN
+                cluster_centers.append(center)
             elif center[2] < PRELIFT_HEIGHT:
+                for i, label in enumerate(labels):
+                    if label == cluster:
+                        labels[i] = -1
                 continue
             else:
                 cluster_centers.append(center)

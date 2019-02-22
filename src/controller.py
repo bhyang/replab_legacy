@@ -36,12 +36,47 @@ class WidowX:
         rospy.sleep(2)
 
         if boundaries:
-            p = PoseStamped()
-            p.header.frame_id = self.commander.get_planning_frame()
-            p.pose.position.x = 0
-            p.pose.position.y = 0
-            p.pose.position.z = .5
-            self.scene.add_box('floor', p, (1., 1., .001))
+            self.add_bounds()
+
+    def add_bounds(self):
+        floor = PoseStamped()
+        floor.header.frame_id = self.commander.get_planning_frame()
+        floor.pose.position.x = 0
+        floor.pose.position.y = 0
+        floor.pose.position.z = .5
+        self.scene.add_box('floor', floor, (1., 1., .001))
+
+        leftWall = PoseStamped()
+        leftWall.header.frame_id = self.commander.get_planning_frame()
+        leftWall.pose.position.x = .16
+        leftWall.pose.position.y = 0
+        leftWall.pose.position.z = .475
+        self.scene.add_box('leftWall', leftWall, (.001, .35, .08))
+
+        rightWall = PoseStamped()
+        rightWall.header.frame_id = self.commander.get_planning_frame()
+        rightWall.pose.position.x = -.16
+        rightWall.pose.position.y = 0
+        rightWall.pose.position.z = .475
+        self.scene.add_box('rightWall', rightWall, (.001, .35, .08))
+
+        frontWall = PoseStamped()
+        frontWall.header.frame_id = self.commander.get_planning_frame()
+        frontWall.pose.position.x = 0
+        frontWall.pose.position.y = -.14
+        frontWall.pose.position.z = .475
+        self.scene.add_box('frontWall', frontWall, (.35, .001, .08))
+
+        backWall = PoseStamped()
+        backWall.header.frame_id = self.commander.get_planning_frame()
+        backWall.pose.position.x = 0
+        backWall.pose.position.y = .14
+        backWall.pose.position.z = .475
+        self.scene.add_box('backWall', backWall, (.35, .001, .08))
+
+    def remove_bounds(self):
+        for obj in self.scene.get_objects().keys():
+            self.scene.remove_world_object(obj)
 
     def open_gripper(self, drop=False):
         plan = self.gripper.plan(GRIPPER_DROP if drop else GRIPPER_OPEN)
@@ -163,6 +198,8 @@ class WidowX:
         return self.commander.execute(plan, wait=True)
 
     def sweep_arena(self):
+        self.remove_bounds()
+        
         self.move_to_drop(.8)
         plan = self.commander.plan(TL_CORNER[0])
         self.commander.execute(plan, wait=True)
@@ -194,6 +231,8 @@ class WidowX:
         self.commander.execute(plan, wait=True)
         plan = self.commander.plan(TR_CORNER[1])
         self.commander.execute(plan, wait=True)
+
+        self.add_bounds()
 
     def discard_object(self):
         plan = self.commander.plan(PREDISCARD_VALUES)

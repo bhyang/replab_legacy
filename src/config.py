@@ -30,8 +30,8 @@ MAX_DEPTH = 700.0
 
 
 # BLOB DETECTION
-DBSCAN_EPS = .02
-DBSCAN_MIN_SAMPLES = 16
+DBSCAN_EPS = .01
+DBSCAN_MIN_SAMPLES = 8
 PC_BOUNDS = [(-.19,  .20),
              (.19,  .20),
              (.19, -.24),
@@ -48,10 +48,10 @@ FROMADDR_PASSWORD = ''
 
 # ARENA BOUNDARIES
 # WARNING: modifying these values may lead to unsafe/volatile arm behavior
-END_EFFECTOR_BOUNDS = [(.15,  .15),
-                       (.14, -.16),
-                       (-.17, -.16),
-                       (-.16,  .15)]
+END_EFFECTOR_BOUNDS = [(.12,  .1),
+                       (.13, -.10),
+                       (-.13, -.1),
+                       (-.11,  .10)]
 
 # CONTROLLER CONSTANTS AND PREPLANNED ROUTINES
 DROPPING_VALUES = [0.0, -1.418932228794218,

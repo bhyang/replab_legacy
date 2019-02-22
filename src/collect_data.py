@@ -37,7 +37,9 @@ def main():
         executor.widowx.move_to_neutral()
         executor.widowx.open_gripper()
 
-        running_misses = 0
+        # running_misses = 0
+
+        counter = 0
 
         rospy.sleep(1)
 
@@ -77,12 +79,12 @@ def main():
                 executor.widowx.open_gripper()
                 continue
 
-            if len(grasps) == 0:
-                print('No grasps plannable, sweeping rig')
-                executor.widowx.sweep_arena()
-                executor.widowx.move_to_neutral()
-                executor.widowx.open_gripper()
-                continue
+            # if len(grasps) == 0:
+            #     print('No grasps plannable, sweeping rig')
+            #     executor.widowx.sweep_arena()
+            #     executor.widowx.move_to_neutral()
+            #     executor.widowx.open_gripper()
+            #     continue
 
             confidences = []
             kept_indices = []
@@ -104,8 +106,10 @@ def main():
             success, err = executor.execute_grasp(grasp)
 
             if err:
-                executor.widowx.move_to_neutral()
+                executor.widowx.move_to_reset()
                 executor.widowx.open_gripper(drop=True)
+                executor.widowx.move_to_neutral()
+                executor.widowx.open_gripper()
                 continue
 
             if args.save:
@@ -114,26 +118,33 @@ def main():
             print('Success: %r' % success)
 
             if success:
-                running_misses = 0
+                # running_misses = 0
                 # objects_picked += 1
-                angle = [-1.57, 1.57][np.random.random() > .5]
-                executor.widowx.move_to_drop(angle)
+                # angle = [-1.57, 1.57][np.random.random() > .5]
+                # executor.widowx.move_to_drop(angle)
+                executor.widowx.move_to_reset()
                 executor.widowx.open_gripper(drop=True)
             else:
-                running_misses += 1
+                # running_misses += 1
+                executor.widowx.move_to_reset()
                 executor.widowx.open_gripper(drop=True)
 
             executor.widowx.move_to_neutral()
 
             executor.widowx.open_gripper()
 
-            if running_misses > 20:
-                print('10 misses exceeded -- sweeping arena')
-                running_misses = 0
+            if counter % 500 == 499:
                 executor.widowx.sweep_arena()
                 executor.widowx.move_to_neutral()
 
+            # if running_misses > 20:
+            #     print('10 misses exceeded -- sweeping arena')
+            #     running_misses = 0
+            #     executor.widowx.sweep_arena()
+            #     executor.widowx.move_to_neutral()
+
             sample_id += 1
+            counter += 1
 
             rospy.sleep(.5)
 

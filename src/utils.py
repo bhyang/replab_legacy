@@ -102,6 +102,11 @@ def compute_blobs(pc):
 
     cluster_centers = []
 
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    # ax.scatter(pc[:,0], pc[:,1], pc[:,2], c=labels)
+    # plt.show()
+
     # import pdb; pdb.set_trace()
     
     for cluster in set(db.labels_):

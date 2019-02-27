@@ -2,7 +2,7 @@ import numpy as np
 from geometry_msgs.msg import Quaternion
 
 # MODELS
-PINTO2016_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/pinto/model.th'
+PINTO2016_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/pinto/model-epoch-149.th'
 FULLIMAGE_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/full-image/lre4/model.th'
 METHODS = ('datacollection', 'datacollection-noiseless',
            'principal-axis', 'pinto2016', 'fullimage', 'custom')
@@ -30,8 +30,8 @@ MAX_DEPTH = 700.0
 
 
 # BLOB DETECTION
-DBSCAN_EPS = .01
-DBSCAN_MIN_SAMPLES = 8
+DBSCAN_EPS = .03
+DBSCAN_MIN_SAMPLES = 16
 PC_BOUNDS = [(-.19,  .20),
              (.19,  .20),
              (.19, -.24),
@@ -48,10 +48,15 @@ FROMADDR_PASSWORD = ''
 
 # ARENA BOUNDARIES
 # WARNING: modifying these values may lead to unsafe/volatile arm behavior
-END_EFFECTOR_BOUNDS = [(.12,  .1),
-                       (.13, -.10),
-                       (-.13, -.1),
-                       (-.11,  .10)]
+# END_EFFECTOR_BOUNDS = [(.12,  .1),
+#                        (.13, -.10),
+#                        (-.13, -.1),
+#                        (-.11,  .10)]
+
+END_EFFECTOR_BOUNDS = [(.15,  .13),
+                       (.16, -.13),
+                       (-.16, -.13),
+                       (-.14,  .13)]
 
 # CONTROLLER CONSTANTS AND PREPLANNED ROUTINES
 DROPPING_VALUES = [0.0, -1.418932228794218,

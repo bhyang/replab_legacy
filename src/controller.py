@@ -26,7 +26,7 @@ from config import *
 
 class WidowX:
 
-    def __init__(self, boundaries=True):
+    def __init__(self, boundaries=False):
         self.scene = PlanningSceneInterface()
         self.commander = MoveGroupCommander("widowx_arm")
         self.gripper = MoveGroupCommander("widowx_gripper")
@@ -35,8 +35,8 @@ class WidowX:
 
         rospy.sleep(2)
 
-        if boundaries:
-            self.add_bounds()
+        # if boundaries:
+        #     self.add_bounds()
 
     def add_bounds(self):
         floor = PoseStamped()
@@ -199,7 +199,7 @@ class WidowX:
 
     def sweep_arena(self):
         self.remove_bounds()
-        
+
         self.move_to_drop(.8)
         plan = self.commander.plan(TL_CORNER[0])
         self.commander.execute(plan, wait=True)

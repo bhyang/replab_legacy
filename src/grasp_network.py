@@ -137,12 +137,12 @@ class PintoGuptaNet(nn.Module):
         self.binned_output = binned_output
 
         self.fc = nn.Sequential(
-            nn.Dropout(.5),
             nn.Linear(2 * 9216, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(.5),
             nn.Linear(1024, 256),
             nn.ReLU(inplace=True),
+            nn.Dropout(.5),
             nn.Linear(256, 18 if binned_output else 2),
         )
 
@@ -179,12 +179,12 @@ class PintoGuptaRGBNet(nn.Module):
         self.binned_output = binned_output
 
         self.fc = nn.Sequential(
-            nn.Dropout(.5),
             nn.Linear(9216, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(.5),
             nn.Linear(1024, 256),
             nn.ReLU(inplace=True),
+            nn.Dropout(.5),
             nn.Linear(256, 18 if binned_output else 2),
         )
 

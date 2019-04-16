@@ -41,7 +41,7 @@ class HumanExecutor:
         self.action_subscriber = rospy.Subscriber(
             "/target_action", String, self.take_action)
         self.rgb_subscriber = rospy.Subscriber(
-            "/camera/rgb/image_raw", Image, self.update_rgb)
+            "/camera/color/image_raw", Image, self.update_rgb)
 
         # Store latest RGB-D
         self.rgb = None
@@ -74,17 +74,6 @@ class HumanExecutor:
         x, y = data.data.split('(')[1].split(')')[0].split(',')
         register_index = int(x) + (int(y) * 640)
         pc_point = list(self.pc[register_index])
-        # pc_depth = pc_point[2]
-        # depth = self.depth
-        # pc_point[2] = depth[int(y), int(x)] / 1000.
-
-        # import pdb; pdb.set_trace()
-
-        # img = np.reshape(self.pc, (480, 640, 3))
-        # img = np.sum(img, axis=2)
-
-        # plt.imshow(img)
-        # plt.show()
 
         print('Pixel: (%s, %s)' % (x, y))
         print('PC point: ' + str(pc_point))
@@ -117,8 +106,6 @@ class HumanExecutor:
 
                 self.robot_coordinates.append((pose.x, pose.y, pose.z))
                 self.camera_coordinates.append(pc_point[:3])
-                np.save('robot_points', np.array(self.robot_coordinates)) ###########################
-                np.save('camera_points', np.array(self.camera_coordinates)) ######################### DELETE LATER
                 print('Saved')
 
             elif user_in == 'n':

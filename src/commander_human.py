@@ -47,7 +47,7 @@ def main():
     name = "CommanderHuman"
     rospy.init_node(name)
 
-    gui = ClickWindow("/camera/rgb/image_raw", "clicked_point")
+    gui = ClickWindow("/camera/color/image_raw", "clicked_point")
     commander_human = CommanderHuman(240, 320, 1)
 
     # Register subscribers

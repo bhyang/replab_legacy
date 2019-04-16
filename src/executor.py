@@ -46,7 +46,7 @@ class Executor:
 
         # Register subscribers
         self.img_subscriber = rospy.Subscriber(
-            "/camera/rgb/image_raw", Image, self.update_rgb)
+            "/camera/color/image_raw", Image, self.update_rgb)
         self.depth_subscriber = rospy.Subscriber(
             "/camera/depth/image_raw", Image, self.update_depth)
         self.pc_subscriber = rospy.Subscriber(
@@ -169,7 +169,6 @@ class Executor:
 
     def evaluate_grasp(self):
         success, closure = self.widowx.eval_grasp()
-        # success = self.detector.evaluate(self.before, self.after, closure)
         return success
 
     def execute_grasp(self, grasp):
@@ -222,7 +221,6 @@ class Executor:
     def calculate_crop(self, grasp):
         grasp = np.concatenate([grasp, [1.]], axis=0)
         transformedPoint = np.dot(self.inv_cm, grasp)
-        # transformedPoint -= np.array([0., 0.04, 0., 0.])
         predicted = self.camera.project3dToPixel(transformedPoint)
         return int(predicted[0]), int(predicted[1])
 

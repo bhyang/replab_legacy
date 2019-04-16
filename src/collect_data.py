@@ -36,9 +36,7 @@ def main():
 
         executor.widowx.move_to_neutral()
         executor.widowx.open_gripper()
-
-        # running_misses = 0
-
+        
         counter = 0
 
         rospy.sleep(1)
@@ -55,6 +53,11 @@ def main():
             policy = DataCollection(noise=False)
         elif args.method == 'fullimage':
             policy = FullImage(FULLIMAGE_PRETRAINED_WEIGHTS)
+        elif args.method == 'combined':
+            from numpy.random import choice
+            policy_array = [DataCollection(noise=True), PrincipalAxis()]
+            policy_array_weights = [0.67, 0.33]
+            policy = choice(policy_array, 1, policy_array_weights)[-1]
         else:
             print('Method not recognized, exiting')
             exit()
@@ -71,6 +74,8 @@ def main():
             executor.sample['filtered_pc'] = pc
 
             try:
+                if args.method == 'combined':
+                    policy = choice(policy_array, 1, policy_array_weights)[-1]
                 grasps = policy.plan_grasp(rgbd, pc)
             except ValueError as ve:
                 traceback.print_exc(ve)
@@ -79,12 +84,12 @@ def main():
                 executor.widowx.open_gripper()
                 continue
 
-            # if len(grasps) == 0:
-            #     print('No grasps plannable, sweeping rig')
-            #     executor.widowx.sweep_arena()
-            #     executor.widowx.move_to_neutral()
-            #     executor.widowx.open_gripper()
-            #     continue
+            if len(grasps) == 0:
+                print('No grasps plannable, sweeping rig')
+                executor.widowx.sweep_arena()
+                executor.widowx.move_to_neutral()
+                executor.widowx.open_gripper()
+                continue
 
             confidences = []
             kept_indices = []
@@ -118,34 +123,24 @@ def main():
             print('Success: %r' % success)
 
             if success:
-                # running_misses = 0
+
                 # objects_picked += 1
-                # angle = [-1.57, 1.57][np.random.random() > .5]
-                # executor.widowx.move_to_drop(angle)
+                #angle = [-1.57, 1.57][np.random.random() > .5]
+                #executor.widowx.move_to_drop(angle)
                 executor.widowx.move_to_reset()
                 executor.widowx.open_gripper(drop=True)
             else:
-                # running_misses += 1
                 executor.widowx.move_to_reset()
                 executor.widowx.open_gripper(drop=True)
 
             executor.widowx.move_to_neutral()
 
             executor.widowx.open_gripper()
-
             if counter % 500 == 499:
                 executor.widowx.sweep_arena()
                 executor.widowx.move_to_neutral()
-
-            # if running_misses > 20:
-            #     print('10 misses exceeded -- sweeping arena')
-            #     running_misses = 0
-            #     executor.widowx.sweep_arena()
-            #     executor.widowx.move_to_neutral()
-
             sample_id += 1
             counter += 1
-
             rospy.sleep(.5)
 
         end = time.time()

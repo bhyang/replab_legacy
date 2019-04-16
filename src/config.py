@@ -2,10 +2,10 @@ import numpy as np
 from geometry_msgs.msg import Quaternion
 
 # MODELS
-PINTO2016_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/pinto/model-epoch-149.th'
-FULLIMAGE_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/full-image/lre4/model.th'
+PINTO2016_PRETRAINED_WEIGHTS = '/root/widowx_arm/src/replab/src/pinto-model.th'
+FULLIMAGE_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/full-image/model.th'
 METHODS = ('datacollection', 'datacollection-noiseless',
-           'principal-axis', 'pinto2016', 'fullimage', 'custom')
+           'principal-axis', 'pinto2016', 'fullimage', 'custom', 'combined')
 
 # DATA COLLECTION
 DATAPATH = ''  # path for saving data collection samples
@@ -16,8 +16,7 @@ XY_NOISE = .02
 PRELIFT_HEIGHT = .39
 Z_OFFSET = 0.04
 Z_MIN = .44
-CONTROL_NOISE_COEFFICIENT = 1.05
-GRASP_LIFT_CLEARANCE = .05
+CONTROL_NOISE_COEFFICIENT = 1.15
 
 
 # CAMERA
@@ -30,8 +29,8 @@ MAX_DEPTH = 700.0
 
 
 # BLOB DETECTION
-DBSCAN_EPS = .03
-DBSCAN_MIN_SAMPLES = 16
+DBSCAN_EPS = .01
+DBSCAN_MIN_SAMPLES = 8
 PC_BOUNDS = [(-.19,  .20),
              (.19,  .20),
              (.19, -.24),
@@ -48,15 +47,10 @@ FROMADDR_PASSWORD = ''
 
 # ARENA BOUNDARIES
 # WARNING: modifying these values may lead to unsafe/volatile arm behavior
-# END_EFFECTOR_BOUNDS = [(.12,  .1),
-#                        (.13, -.10),
-#                        (-.13, -.1),
-#                        (-.11,  .10)]
-
-END_EFFECTOR_BOUNDS = [(.15,  .13),
-                       (.16, -.13),
-                       (-.16, -.13),
-                       (-.14,  .13)]
+END_EFFECTOR_BOUNDS = [(.15,  .15),
+                       (.14, -.16),
+                       (-.17, -.16),
+                       (-.16,  .15)]
 
 # CONTROLLER CONSTANTS AND PREPLANNED ROUTINES
 DROPPING_VALUES = [0.0, -1.418932228794218,
@@ -97,3 +91,7 @@ BR_CORNER = [[-2.2181362192826373, -0.04283496254582462, -0.0841359443037636, -0
              [-2.2181362192826373, -0.08283496254582462, -0.1641359443037636, -1.5531845668518498, -0.02045307717180855]]
 TR_CORNER = [[2.376136240434858, -0.2715145994557585, -0.007669903939428206, -0.624330180669456, -0.0409061543436171],
              [2.376136240434858, -0.2715145994557585, -0.007669903939428206, -1.524330180669456, -0.0409061543436171]]
+
+UPRIGHT_DROP = [0., -0.34821363885004053, 0.7470486437003072, 1.2041749184902284, -0.0051132692929521375, 0.003]
+UPRIGHT_NEUTRAL = [0., -1.1642914180052018, 1.239456476611598, -0.10737865515199488, 0.0051132692929521375, 0.003]
+UPRIGHT_RESET = [0., -0.4, 0.7915340865489908, -0.3942330624866098, -0.010226538585904275, 0.003]

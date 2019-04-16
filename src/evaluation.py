@@ -125,7 +125,7 @@ def main():
         executor.widowx.open_gripper()
 
         if running_misses > 20:
-            print('10 misses exceeded -- sweeping arena')
+            print('20 misses exceeded -- sweeping arena')
             running_misses = 0
             executor.widowx.sweep_arena()
             executor.widowx.move_to_neutral()

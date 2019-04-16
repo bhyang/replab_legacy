@@ -77,7 +77,7 @@ class WidowX:
         frontWall = PoseStamped()
         frontWall.header.frame_id = self.commander.get_planning_frame()
         frontWall.pose.position.x = 0
-        frontWall.pose.position.y = -.16
+        frontWall.pose.position.y = -.21
         frontWall.pose.position.z = .475
         self.scene.add_box('frontWall', frontWall, (.35, .001, .08))
 
@@ -91,7 +91,7 @@ class WidowX:
         backWall = PoseStamped()
         backWall.header.frame_id = self.commander.get_planning_frame()
         backWall.pose.position.x = 0
-        backWall.pose.position.y = .16
+        backWall.pose.position.y = .2
         backWall.pose.position.z = .475
         self.scene.add_box('backWall', backWall, (.35, .001, .08))
 
@@ -102,7 +102,7 @@ class WidowX:
         plan = self.gripper.plan(GRIPPER_CLOSED)
         return self.gripper.execute(plan, wait=True)
 
-    def eval_grasp(self, threshold=.001):
+    def eval_grasp(self, threshold=.0001):
         current = np.array(self.gripper.get_current_joint_values())
         target = np.array(GRIPPER_CLOSED)
         error = current[0] - target[0]

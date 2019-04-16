@@ -29,7 +29,7 @@ MAX_DEPTH = 700.0
 
 
 # BLOB DETECTION
-DBSCAN_EPS = .01
+DBSCAN_EPS = .03
 DBSCAN_MIN_SAMPLES = 8
 PC_BOUNDS = [(-.19,  .20),
              (.19,  .20),

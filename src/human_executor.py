@@ -35,7 +35,7 @@ class HumanExecutor:
 
         # Register subscribers
         self.pc_subscriber = rospy.Subscriber(
-            "/camera/depth/points", PointCloud2, self.update_pc)
+            "/camera/depth/color/points", PointCloud2, self.update_pc)
         self.camerainfo_subscriber = rospy.Subscriber(
             "/camera/depth/camera_info", CameraInfo, self.save_caminfo)
         self.action_subscriber = rospy.Subscriber(

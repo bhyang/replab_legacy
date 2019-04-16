@@ -100,6 +100,11 @@ def compute_blobs(pc):
     core_samples_mask[db.core_sample_indices_] = True
     labels = db.labels_
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(pc[:,0], pc[:,1], pc[:,2], c=labels)
+    plt.show()
+
     cluster_centers = []
     
     for cluster in set(db.labels_):

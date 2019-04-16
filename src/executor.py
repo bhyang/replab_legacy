@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -34,7 +36,8 @@ from sklearn.neighbors import KDTree
 from scipy.ndimage import rotate
 
 from controller import WidowX
-from policy import *
+from utils import *
+# from policy import *
 from config import *
 
 
@@ -50,7 +53,7 @@ class Executor:
         self.depth_subscriber = rospy.Subscriber(
             "/camera/depth/image_raw", Image, self.update_depth)
         self.pc_subscriber = rospy.Subscriber(
-            "/camera/depth/points", PointCloud2, self.update_pc)
+            "/camera/depth/color/points", PointCloud2, self.update_pc)
         self.caminfo_subscriber = rospy.Subscriber(
             "/camera/depth/camera_info", CameraInfo, self.save_cinfo)
         self.joint_subscriber = rospy.Subscriber(
@@ -248,3 +251,11 @@ class Executor:
         self.sample = {}
 
         print('Saved to %s' % self.datapath + str(i) + '.hdf5')
+
+def main():
+    rospy.init_node('executor')
+    executor = Executor(scan=True)
+    rospy.spin()
+
+if __name__ == '__main__':
+    main()

@@ -49,16 +49,13 @@ class Executor:
 
         # Register subscribers
         self.img_subscriber = rospy.Subscriber(
-            "/camera/color/image_raw", Image, self.update_rgb)
+            RGB_IMAGE_TOPIC, Image, self.update_rgb)
         self.depth_subscriber = rospy.Subscriber(
-            "/camera/depth/image_raw", Image, self.update_depth)
+            DEPTH_IMAGE_TOPIC, Image, self.update_depth)
         self.pc_subscriber = rospy.Subscriber(
-            "/camera/depth/color/points", PointCloud2, self.update_pc)
+            POINTCLOUD_TOPIC, PointCloud2, self.update_pc)
         self.caminfo_subscriber = rospy.Subscriber(
-            "/camera/depth/camera_info", CameraInfo, self.save_cinfo)
-        self.joint_subscriber = rospy.Subscriber(
-            "/joint_states", JointState, self.update_joints)
-
+            DEPTH_CAMERA_INFO_TOPIC, CameraInfo, self.save_cinfo)
 
         self.datapath = datapath
         self.save = save
@@ -105,9 +102,6 @@ class Executor:
         cv_image = self.transform(self.bridge.imgmsg_to_cv2(data))
         self.depth = cv_image
 
-    def update_joints(self, data):
-        self.joints = data
-
     def update_pc(self, data):
         self.pc = pc2.read_points(data, skip_nans=True)
 
@@ -115,7 +109,9 @@ class Executor:
         self.camera_info = data
 
     def get_rgbd(self):
-        depth = np.reshape(self.depth, (480, 640, 1))
+        old_depth = self.depth.astype(np.float) / 10000.
+        depth = rectify_depth(old_depth)
+        depth = np.reshape(depth, (480, 640, 1))
         return np.concatenate([self.rgb, depth], axis=2)
 
     def get_pose(self):

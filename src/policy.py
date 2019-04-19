@@ -7,6 +7,8 @@ from utils import *
 
 import traceback
 
+import torch.nn as nn
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -99,6 +101,7 @@ class Pinto2016(Policy):
     def __init__(self, model_path=None, heightmaps=False):
         self.net = PintoGuptaRGBNet(binned_output=True).cuda()
         # self.net = torch.load(model_path).cuda()
+        self.net = nn.DataParallel(self.net).cuda()
         self.net.load_state_dict(torch.load(model_path))
         self.net.eval()
         self.resize = make_resize(227, 227)
@@ -194,6 +197,7 @@ class FullImage(Policy):
 
     def __init__(self, model_path=None):
         self.net = StandardNet().cuda()
+        self.net = nn.DataParallel(self.net).cuda()
         self.net.load_state_dict(torch.load(model_path), strict=False)
         self.net.eval()
         self.resize = make_resize(227, 227)

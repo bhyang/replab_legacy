@@ -2,7 +2,7 @@ import numpy as np
 from geometry_msgs.msg import Quaternion
 
 # MODELS
-PINTO2016_PRETRAINED_WEIGHTS = '/root/widowx_arm/src/replab/src/pinto-model.th'
+PINTO2016_PRETRAINED_WEIGHTS = '/root/ros_ws/src/replab/80k_pinto_epoch_6.th'
 FULLIMAGE_PRETRAINED_WEIGHTS = '/home/dianchen/grasping/result/full-image/model.th'
 METHODS = ('datacollection', 'datacollection-noiseless',
            'principal-axis', 'pinto2016', 'fullimage', 'custom', 'combined')
@@ -16,7 +16,7 @@ XY_NOISE = .02
 PRELIFT_HEIGHT = .39
 Z_OFFSET = 0.04
 Z_MIN = .44
-CONTROL_NOISE_COEFFICIENT = 1.15
+CONTROL_NOISE_COEFFICIENT = 1.05
 
 
 # CAMERA
@@ -47,7 +47,7 @@ MAX_DEPTH = 700.0
 
 
 # BLOB DETECTION
-DBSCAN_EPS = .03
+DBSCAN_EPS = .02
 DBSCAN_MIN_SAMPLES = 8
 PC_BOUNDS = [(-.19,  .20),
              (.19,  .20),

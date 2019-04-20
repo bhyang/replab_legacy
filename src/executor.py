@@ -166,8 +166,8 @@ class Executor:
             haul(self.pc)
             rospy.sleep(1)
 
-    def evaluate_grasp(self):
-        success, closure = self.widowx.eval_grasp()
+    def evaluate_grasp(self, manual=False):
+        success, closure = self.widowx.eval_grasp(manual=manual)
         return success
 
     def execute_grasp(self, grasp, manual_label=False):

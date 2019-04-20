@@ -98,7 +98,7 @@ def main():
         selected = np.random.choice(np.argsort(confidences)[-5:])
         grasp = grasps[kept_indices[selected]][0]
 
-        success, err = executor.execute_grasp(grasp)
+        success, err = executor.execute_grasp(grasp, manual_label=True)
 
         if err:
             executor.widowx.move_to_neutral()

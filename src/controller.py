@@ -102,11 +102,20 @@ class WidowX:
         plan = self.gripper.plan(GRIPPER_CLOSED)
         return self.gripper.execute(plan, wait=True)
 
-    def eval_grasp(self, threshold=.0001):
-        current = np.array(self.gripper.get_current_joint_values())
-        target = np.array(GRIPPER_CLOSED)
-        error = current[0] - target[0]
-        return error > threshold, error
+    def eval_grasp(self, threshold=.0001, manual=False):
+        if manual:
+            user_input = None
+            while user_input not in ('y', 'n'):
+                user_input = raw_input('Successful grasp? [y/n]: ')
+            if user_input == 'y':
+                return True, None
+            else:
+                return False, None
+        else:
+            current = np.array(self.gripper.get_current_joint_values())
+            target = np.array(GRIPPER_CLOSED)
+            error = current[0] - target[0]
+            return error > threshold, error
 
     def orient_to_target(self, x=None, y=None, angle=None):
         current = self.get_joint_values()

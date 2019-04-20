@@ -170,7 +170,7 @@ class Executor:
         success, closure = self.widowx.eval_grasp()
         return success
 
-    def execute_grasp(self, grasp):
+    def execute_grasp(self, grasp, manual_label=False):
         try:
             x, y, z, theta = grasp
 
@@ -207,7 +207,7 @@ class Executor:
             self.sample['after_img'] = self.get_rgbd()
             self.after = self.sample['after_img']
 
-            success = self.evaluate_grasp()
+            success = self.evaluate_grasp(manual=manual_label)
             self.sample['gripper_closure'] = self.widowx.eval_grasp()[1]
 
             return success, 0

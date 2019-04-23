@@ -117,7 +117,11 @@ def compute_blobs(pc):
             
             if center[2] > Z_MIN:
                 center[2] = Z_MIN
+                cluster_centers.append(center)
             elif center[2] < PRELIFT_HEIGHT:
+                for i, label in enumerate(labels):
+                    if label == cluster:
+                        labels[i] = -1
                 continue
             else:
                 cluster_centers.append(center)

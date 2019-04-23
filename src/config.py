@@ -5,7 +5,7 @@ from geometry_msgs.msg import Quaternion
 PINTO2016_PRETRAINED_WEIGHTS = ''
 FULLIMAGE_PRETRAINED_WEIGHTS = ''
 METHODS = ('datacollection', 'datacollection-noiseless',
-           'principal-axis', 'pinto2016', 'fullimage', 'custom')
+           'principal-axis', 'pinto2016', 'fullimage', 'custom', 'combined')
 
 # DATA COLLECTION
 DATAPATH = ''  # path for saving data collection samples
@@ -16,7 +16,7 @@ XY_NOISE = .02
 PRELIFT_HEIGHT = .39
 Z_OFFSET = 0.04
 Z_MIN = .44
-CONTROL_NOISE_COEFFICIENT = 1.15
+CONTROL_NOISE_COEFFICIENT = 1.05
 
 
 # CAMERA
@@ -29,8 +29,8 @@ MAX_DEPTH = 700.0
 
 
 # BLOB DETECTION
-DBSCAN_EPS = .01
-DBSCAN_MIN_SAMPLES = 16
+DBSCAN_EPS = .02
+DBSCAN_MIN_SAMPLES = 8
 PC_BOUNDS = [(-.19,  .20),
              (.19,  .20),
              (.19, -.24),
@@ -47,8 +47,8 @@ FROMADDR_PASSWORD = ''
 
 # ARENA BOUNDARIES
 # WARNING: modifying these values may lead to unsafe/volatile arm behavior
-END_EFFECTOR_BOUNDS = [(.17,  .15),
-                       (.16, -.16),
+END_EFFECTOR_BOUNDS = [(.15,  .15),
+                       (.14, -.16),
                        (-.17, -.16),
                        (-.16,  .15)]
 

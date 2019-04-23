@@ -15,7 +15,7 @@ def main():
     parser.add_argument('--trials', type=int, default=60,
                         help="Number of evaluation trials")
     parser.add_argument('--datapath', type=str,
-                        default='/home/dianchen/grasping_data/evaluations/', help="Path for saving data samples")
+                        default='', help="Path for saving data samples")
     parser.add_argument('--save', type=int, default=0,
                         help="Toggles whether samples are saved")
     parser.add_argument('--start', type=int, default=0,
@@ -124,7 +124,7 @@ def main():
 
         executor.widowx.open_gripper()
 
-        if running_misses > 20:
+        if running_misses > 10:
             print('10 misses exceeded -- sweeping arena')
             running_misses = 0
             executor.widowx.sweep_arena()

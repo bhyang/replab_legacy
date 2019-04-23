@@ -128,7 +128,7 @@ class Pinto2016(Policy):
             if label == -1:
                 continue
             blob_points = pc[labels == label]
-            index = np.random.randint(0, len(set(labels)) - 1)
+            index = np.random.randint(0, len(blob_points))
             blobs.append(blob_points[index])
 
         all_grasps = []
@@ -137,16 +137,17 @@ class Pinto2016(Policy):
 
         for blob in blobs:
             blob = np.concatenate([blob, [0.]], axis=0)
-            blob[2] -= Z_OFFSET
-            if blob[2] > Z_MIN:
-                blob[2] = Z_MIN
+            # blob[2] -= Z_OFFSET
+            # if blob[2] > Z_MIN:
+            #     blob[2] = Z_MIN
+            blob[2] = Z_MIN
 
             candidates = []
             probabilities = []
             cropss = []
 
             for i in range(num_grasps // batch_size):
-                noise = np.random.uniform([-XY_NOISE, -XY_NOISE, -.01, -1.57], [XY_NOISE, XY_NOISE, 0.0, 1.57],
+                noise = np.random.uniform([-XY_NOISE, -XY_NOISE, -.02, -1.57], [XY_NOISE, XY_NOISE, 0.0, 1.57],
                                           (batch_size, 4))
                 grasps = noise + blob
                 candidates.append(grasps)
@@ -204,20 +205,22 @@ class FullImage(Policy):
 
         rgb, depth = self.resize(rgb), self.resize(depth)
 
-        _, labels = compute_blobs(pc)
+        blobs, labels = compute_blobs(pc)
 
-        blobs = []
-        for label in set(labels):
-            if label == -1:
-                continue
-            blob_points = pc[labels == label]
-            index = np.random.randint(0, len(set(labels)) - 1)
-            blobs.append(blob_points[index])
+        # blobs = []
+        # for label in set(labels):
+        #     if label == -1:
+        #         continue
+        #     blob_points = pc[labels == label]
+        #     index = np.random.randint(0, len(set(labels)) - 1)
+        #     blobs.append(blob_points[index])
 
-        for blob in blobs:
-            blob[2] -= Z_OFFSET
-            if blob[2] > Z_MIN:
-                blob[2] = Z_MIN
+        # for blob in blobs:
+        #     blob[2] -= Z_OFFSET
+        #     if blob[2] > Z_MIN:
+        #         blob[2] = Z_MIN
+
+        # import pdb; pdb.set_trace()
 
         all_grasps = []
         all_probabilities = []
@@ -249,6 +252,8 @@ class FullImage(Policy):
 
             all_grasps.append(candidates[best_index])
             all_probabilities.append(probabilities[best_index])
+
+        # import pdb; pdb.set_trace()
 
         all_grasps = np.array(all_grasps)
         all_grasps[:, :2] *= CONTROL_NOISE_COEFFICIENT

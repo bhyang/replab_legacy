@@ -102,7 +102,7 @@ class WidowX:
         plan = self.gripper.plan(GRIPPER_CLOSED)
         return self.gripper.execute(plan, wait=True)
 
-    def eval_grasp(self, threshold=.0001, manual=False):
+    def eval_grasp(self, threshold=.001, manual=False):
         if manual:
             user_input = None
             while user_input not in ('y', 'n'):

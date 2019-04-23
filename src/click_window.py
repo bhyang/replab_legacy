@@ -190,7 +190,7 @@ def main(args):
         return x
     
     # gui = ClickWindow("/camera/depth/image_rect", "sr300_img_clickpoints", transform)
-    gui = ClickWindow("/camera/rgb/image_color_rect", "sr300_img_clickpoints", bgr_to_rgb)
+    gui = ClickWindow("/camera/color/image_color_rect", "sr300_img_clickpoints", bgr_to_rgb)
     print ("Pressed Esc to escape")
     while True:
         cv2.imshow(gui.name, gui.img)

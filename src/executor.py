@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -34,7 +36,8 @@ from sklearn.neighbors import KDTree
 from scipy.ndimage import rotate
 
 from controller import WidowX
-from policy import *
+from utils import *
+# from policy import *
 from config import *
 
 
@@ -60,7 +63,6 @@ class Executor:
         self.joint_subscriber = rospy.Subscriber(
             "/joint_states", JointState, self.update_joints)
 
-
         self.datapath = datapath
         self.save = save
 
@@ -70,9 +72,11 @@ class Executor:
         self.evaluation_data = []
 
         # Store latest RGB-D
-        self.rgb = None
-        self.depth = None
-        self.pc = None
+        self.rgb = np.zeros((480,640,3))
+        self.depth = np.zeros((480,640,1))
+        self.pc = np.zeros((1,3))
+        
+        self.camera_info = CameraInfo()
 
         if scan:
             self.base_pc = np.zeros((1, 3)) + 5000.0
@@ -110,7 +114,9 @@ class Executor:
         self.camera_info = data
 
     def get_rgbd(self):
-        depth = np.reshape(self.depth, (480, 640, 1))
+        old_depth = self.depth.astype(np.float) / 10000.
+        depth = rectify_depth(old_depth)
+        depth = np.reshape(depth, (480, 640, 1))
         return np.concatenate([self.rgb, depth], axis=2)
 
     def get_pose(self):
@@ -167,10 +173,9 @@ class Executor:
 
     def evaluate_grasp(self):
         success, closure = self.widowx.eval_grasp()
-        # success = self.detector.evaluate(self.before, self.after, closure)
         return success
 
-    def execute_grasp(self, grasp):
+    def execute_grasp(self, grasp, manual_label=False):
         try:
             x, y, z, theta = grasp
 
@@ -203,10 +208,11 @@ class Executor:
             assert self.widowx.move_to_drop(), 'Failed to move to drop'
 
             rospy.sleep(2)
+            
             self.sample['after_img'] = self.get_rgbd()
             self.after = self.sample['after_img']
 
-            success = self.evaluate_grasp()
+            success = self.evaluate_grasp(manual=manual_label)
             self.sample['gripper_closure'] = self.widowx.eval_grasp()[1]
 
             return success, 0
@@ -219,7 +225,6 @@ class Executor:
     def calculate_crop(self, grasp):
         grasp = np.concatenate([grasp, [1.]], axis=0)
         transformedPoint = np.dot(self.inv_cm, grasp)
-        # transformedPoint -= np.array([0., 0.04, 0., 0.])
         predicted = self.camera.project3dToPixel(transformedPoint)
         return int(predicted[0]), int(predicted[1])
 
@@ -247,3 +252,11 @@ class Executor:
         self.sample = {}
 
         print('Saved to %s' % self.datapath + str(i) + '.hdf5')
+
+def main():
+    rospy.init_node('executor')
+    executor = Executor(scan=True)
+    rospy.spin()
+
+if __name__ == '__main__':
+    main()

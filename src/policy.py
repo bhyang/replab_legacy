@@ -7,6 +7,10 @@ from utils import *
 
 import traceback
 
+import torch.nn as nn
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class Policy:
 
@@ -57,7 +61,7 @@ class DataCollection(Policy):
         else:
             center = np.append(center, np.random.uniform(-1.57, 1.57, (1)))
             return [(center, 1.)]
-
+            
 
 class PrincipalAxis(Policy):
     '''
@@ -96,6 +100,8 @@ class Pinto2016(Policy):
 
     def __init__(self, model_path=None, heightmaps=False):
         self.net = PintoGuptaRGBNet(binned_output=True).cuda()
+        # self.net = torch.load(model_path).cuda()
+        self.net = nn.DataParallel(self.net).cuda()
         self.net.load_state_dict(torch.load(model_path))
         self.net.eval()
         self.resize = make_resize(227, 227)
@@ -191,11 +197,12 @@ class FullImage(Policy):
 
     def __init__(self, model_path=None):
         self.net = StandardNet().cuda()
+        self.net = nn.DataParallel(self.net).cuda()
         self.net.load_state_dict(torch.load(model_path), strict=False)
         self.net.eval()
         self.resize = make_resize(227, 227)
 
-    def plan_grasp(self, rgbd, pc, num_grasps=512, batch_size=16):
+    def plan_grasp(self, rgbd, pc, num_grasps=2048, batch_size=64):
         rgb, depth = rgbd[:, :, :3].astype(np.uint8), rgbd[:, :, 3]
 
         depth = depth.astype(np.float)
@@ -227,12 +234,13 @@ class FullImage(Policy):
 
         for blob in blobs:
             blob = np.concatenate([blob, [0.]], axis=0)
+            blob[2] = Z_MIN
 
             candidates = []
             probabilities = []
 
             for i in range(num_grasps // batch_size):
-                noise = np.random.uniform([-.02, -.02, -.01, 0], [.04, .04, 0.0, 3.14],
+                noise = np.random.uniform([-.02, -.02, -.02, 0], [.02, .02, 0.0, 3.14 / 2],
                                           (batch_size, 4))
                 grasps = noise + blob
                 candidates.append(grasps)

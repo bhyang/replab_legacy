@@ -2,6 +2,8 @@ import numpy as np
 import torch
 import torchvision.transforms as transforms
 from sklearn.cluster import DBSCAN
+import cv2
+from scipy.interpolate import NearestNDInterpolator
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -100,6 +102,11 @@ def compute_blobs(pc):
     core_samples_mask[db.core_sample_indices_] = True
     labels = db.labels_
 
+    #fig = plt.figure()
+    #ax = fig.add_subplot(111, projection='3d')
+    #ax.scatter(pc[:,0], pc[:,1], pc[:,2], c=labels)
+    #plt.show()
+
     cluster_centers = []
     
     for cluster in set(db.labels_):
@@ -129,3 +136,13 @@ def compute_blobs(pc):
     print('Blobs detected: %d' % len(cluster_centers))
 
     return cluster_centers, labels
+
+def rectify_depth(depth, interpolate=True):
+    rectified = cv2.rgbd.registerDepth(DEPTH_K, RGB_K, None, DEPTH_TO_RGB_RT, depth, (640, 480), False)
+    rectified = np.nan_to_num(rectified)
+    if interpolate:
+        nndi = NearestNDInterpolator(np.argwhere(rectified != 0.), rectified[rectified != 0.])
+        missing_indices = np.argwhere(rectified == 0.)
+        interpolated = nndi(missing_indices)
+        rectified[missing_indices[:,0], missing_indices[:,1]] = interpolated
+    return rectified

@@ -8,7 +8,7 @@ from utils import *
 import traceback
 
 import torch.nn as nn
-
+import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -101,19 +101,16 @@ class Pinto2016(Policy):
     def __init__(self, model_path=None, heightmaps=False):
         self.net = PintoGuptaRGBNet(binned_output=True).cuda()
         # self.net = torch.load(model_path).cuda()
-        self.net = nn.DataParallel(self.net).cuda()
+        #self.net = nn.DataParallel(self.net).cuda()
         self.net.load_state_dict(torch.load(model_path))
         self.net.eval()
-        self.resize = make_resize(227, 227)
+        self.resize = make_resize_rgb(227, 227)
 
         self.K = np.array([[476.71520996,   0., 315.12536621],
                            [0., 476.71520996, 245.31260681],
                            [0.,   0.,   1.]])
 
-        self.cm = np.array([[-0.98920647,  0.00365372,  0.04322708, -0.02502565],
-                            [0.04257126, -0.8901723,  0.44594308, -0.23419753],
-                            [0.04791109,  0.46081398,  0.84856849,  0.03137201],
-                            [0.,  0.,  0.,  1.]])
+        self.cm = CALIBRATION_MATRIX
 
         self.inv_cm = np.linalg.inv(self.cm)
 
@@ -124,9 +121,8 @@ class Pinto2016(Policy):
         pixel_points = np.dot(self.K, camera_points / camera_points[2:])[:2].T
         return pixel_points.astype(int)
 
-    def plan_grasp(self, rgbd, pc, num_grasps=512, batch_size=32):
+    def plan_grasp(self, rgbd, pc, num_grasps=256, batch_size=128):
         rgb = rgbd[:, :, :3].astype(np.uint8)
-
         _, labels = compute_blobs(pc)
 
         blobs = []
@@ -143,9 +139,6 @@ class Pinto2016(Policy):
 
         for blob in blobs:
             blob = np.concatenate([blob, [0.]], axis=0)
-            # blob[2] -= Z_OFFSET
-            # if blob[2] > Z_MIN:
-            #     blob[2] = Z_MIN
             blob[2] = Z_MIN
 
             candidates = []
@@ -174,7 +167,6 @@ class Pinto2016(Policy):
 
                 probabilities.extend([sigmoid(k)
                                       for k in output.detach().cpu().numpy()])
-
             candidates = np.concatenate(candidates, axis=0)
             best_indices = np.argsort(probabilities)[-5:]
             best_index = np.random.choice(best_indices)

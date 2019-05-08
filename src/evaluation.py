@@ -110,13 +110,18 @@ def main():
 
         print('Success: %r' % success)
 
-        if success:
+        if success == 1:
             running_misses = 0
             objects_picked += 1
             executor.widowx.discard_object()
-        else:
+        elif success == 0:
             running_misses += 1
             executor.widowx.open_gripper(drop=True)
+        else:
+            print('Discarding sample and redoing grasp')
+            executor.widowx.move_to_neutral()
+            executor.widowx.open_gripper()
+            continue
 
         executor.evaluation_data.append(objects_picked)
 

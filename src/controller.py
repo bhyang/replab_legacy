@@ -105,12 +105,14 @@ class WidowX:
     def eval_grasp(self, threshold=.0001, manual=False):
         if manual:
             user_input = None
-            while user_input not in ('y', 'n'):
-                user_input = raw_input('Successful grasp? [y/n]: ')
+            while user_input not in ('y', 'n', 'r'):
+                user_input = raw_input('Successful grasp? [(y)es/(n)o/(r)edo]: ')
             if user_input == 'y':
-                return True, None
+                return 1, None
+            elif user_input == 'n':
+                return 0, None
             else:
-                return False, None
+                return -1, None
         else:
             current = np.array(self.gripper.get_current_joint_values())
             target = np.array(GRIPPER_CLOSED)

@@ -67,7 +67,7 @@ def inside_polygon(point, arena, height_constraints=None):
         return inside
 
 
-def crop_image(img, center, radius=64):
+def crop_image(img, center, radius=48):
     y, x = center[0] + radius, center[1] + radius
     img = np.pad(img, ((radius, radius), (radius, radius), (0, 0)), 'constant')
     cropped = img[x - radius:x + radius, y - radius:y + radius, :]
@@ -85,6 +85,13 @@ def make_resize(x, y):
         transforms.Resize((x, y)),
         transforms.ToTensor()])
 
+def make_resize_rgb(x, y):
+    return transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Resize((x, y)),
+        transforms.ToTensor(),
+        transforms.Normalize((0,0,0),(1,1,1))])
+
 
 def get_probability(s0, s1):
     p0, p1 = np.exp(s0), np.exp(s1)
@@ -101,11 +108,6 @@ def compute_blobs(pc):
     core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
     core_samples_mask[db.core_sample_indices_] = True
     labels = db.labels_
-
-    #fig = plt.figure()
-    #ax = fig.add_subplot(111, projection='3d')
-    #ax.scatter(pc[:,0], pc[:,1], pc[:,2], c=labels)
-    #plt.show()
 
     cluster_centers = []
     
